@@ -1,0 +1,3 @@
+rootProject.name='AndroidPrinter'
+include ':app'
+include ':common_library'
