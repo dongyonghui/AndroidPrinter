@@ -20,6 +20,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':common_library')
-//    implementation 'com.github.dongyonghui:AndroidPrinter:1.0'
+//    implementation project(path: ':common_library')
+    implementation 'com.github.dongyonghui:AndroidPrinter:1.0.1'
 }
