@@ -117,7 +117,7 @@ StringBuilder stringBuilder = new StringBuilder();
         startActivity(new Intent(this, PrinterManagerActivity.class));
 ```
 
-<!-- 释放资源 -->
+<!-- USB打印机释放资源 -->
 
 ```
     @Override
