@@ -28,9 +28,6 @@ import java.util.Vector;
 public class UsbPrintManager {
     public static final byte CUT_PAPER_AND_FEED = 20;
 
-    private static final String FILENAME = "UsbPrinterConfig";
-    private static final String PRINTER_CONFIG = "printer_config";//打印机配置信息
-
     //默认的事件处理监听
     private final OnPrinterNotifyListener mDefaultNotifyListener = new OnPrinterNotifyListener() {
         @Override
@@ -128,7 +125,7 @@ public class UsbPrintManager {
      * 打印消息
      *
      * @param context
-     * @param printerBean 获取方法见demo和 getPrinterBean()方法
+     * @param printerBean 获取方法见demo和 PrinterBean.getPrinterBean()方法
      * @return
      */
     public void print(final Context context, final PrinterBean printerBean) {
@@ -243,72 +240,6 @@ public class UsbPrintManager {
      */
     public void releasePrinter() {
         mUsbPrinter.close();
-    }
-
-    /**
-     * 生成小票信息数据
-     *
-     * @param context               上下文
-     * @param assesTemplateFileName assess文件夹中小票模板文件名
-     * @param templateRootKeyName   小票模板中自定义数据key
-     * @param data                  展示的数据
-     * @return
-     */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data) {
-        return getPrinterBean(context, assesTemplateFileName, templateRootKeyName, data, 1);
-    }
-
-    /**
-     * 生成小票信息数据
-     *
-     * @param context               上下文
-     * @param assesTemplateFileName assess文件夹中小票模板文件名
-     * @param templateRootKeyName   小票模板中自定义数据key
-     * @param data                  展示的数据
-     * @param count                 打印数量
-     * @return
-     */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data, int count) {
-        PrinterBean printerBean = null;
-        if (null != data) {
-            printerBean = new PrinterBean();
-            printerBean.templateInfo = TxtReader.getStringFromAssetsByFullPath(context, assesTemplateFileName);
-            printerBean.printCount = count;
-            printerBean.templateBeanKey = templateRootKeyName;
-            printerBean.templateBean = data;
-        }
-        return printerBean;
-    }
-
-    /**
-     * 获取打印机配置信息
-     *
-     * @param context
-     * @return
-     */
-    public PrinterConfig getPrinterConfig(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE);
-        String json = sharedPreferences.getString(PRINTER_CONFIG, null);
-        PrinterConfig printerConfig = new Gson().fromJson(json, PrinterConfig.class);
-        if (printerConfig == null) {
-            printerConfig = new PrinterConfig();
-        }
-        return printerConfig;
-    }
-
-    /**
-     * 保存打印机配置信息
-     *
-     * @param context
-     * @param printerConfig
-     * @return
-     */
-    public UsbPrintManager saveConfigInfo(Context context, PrinterConfig printerConfig) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(PRINTER_CONFIG, new Gson().toJson(printerConfig));
-        editor.apply();
-        return instance;
     }
 
     public boolean isNeedShowPrintingDialog() {

@@ -2,6 +2,7 @@ package com.dyh.usbprinter;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.hardware.usb.UsbConfiguration;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -79,9 +80,9 @@ public class MainActivity extends Activity {
     public void printTemplateFormatText(View view) {
         //组织打印信息
         OrderPrinterBean orderPrinterBean = getOrderPrinterBean();
-        PrinterConfig printerConfig = UsbPrintManager.getInstance().getPrinterConfig(this);
+        PrinterConfig printerConfig = PrinterConfig.getPrinterConfig(this);
         String tempPath = "/assets/printer_template_" + printerConfig.getPagerWidth() + "/order.vm";
-        PrinterBean printerBean = UsbPrintManager.getInstance().getPrinterBean(this,
+        PrinterBean printerBean = PrinterBean.getPrinterBean(this,
                 tempPath,
                 "printBean", orderPrinterBean
                 , 1);

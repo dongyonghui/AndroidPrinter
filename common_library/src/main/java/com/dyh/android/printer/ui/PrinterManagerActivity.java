@@ -77,7 +77,7 @@ public class PrinterManagerActivity extends Activity {
         printerConfig.setPrintCount(count);
         printerConfig.setPagerWidth(mUse80WidthCheckBox.isChecked() ? 80 : 58);
         BluetoothPrintManager.getInstance().saveConfigInfo(this, printerConfig);
-        UsbPrintManager.getInstance().saveConfigInfo(this, printerConfig);
+        PrinterConfig.saveConfigInfo(this, printerConfig);
         finish();
     }
 

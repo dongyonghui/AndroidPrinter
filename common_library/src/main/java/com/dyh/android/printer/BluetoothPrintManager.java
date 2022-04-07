@@ -146,7 +146,7 @@ public class BluetoothPrintManager {
      * 打印消息
      *
      * @param context
-     * @param printerBean 获取方法见demo和 getPrinterBean()方法
+     * @param printerBean 获取方法见demo和 PrinterBean.getPrinterBean()方法
      * @return
      */
     public BluetoothPrintManager print(final Context context, final PrinterBean printerBean) {
@@ -220,41 +220,6 @@ public class BluetoothPrintManager {
      */
     public void sendNotify(final OnPrinterNotifyListener.NotifyMessage msg) {
         mDefaultNotifyListener.onPrinterNotify(msg);
-    }
-
-    /**
-     * 生成小票信息数据
-     *
-     * @param context               上下文
-     * @param assesTemplateFileName assess文件夹中小票模板文件名
-     * @param templateRootKeyName   小票模板中自定义数据key
-     * @param data                  展示的数据
-     * @return
-     */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data) {
-        return getPrinterBean(context, assesTemplateFileName, templateRootKeyName, data, 1);
-    }
-
-    /**
-     * 生成小票信息数据
-     *
-     * @param context               上下文
-     * @param assesTemplateFileName assess文件夹中小票模板文件名
-     * @param templateRootKeyName   小票模板中自定义数据key
-     * @param data                  展示的数据
-     * @param count                 打印数量
-     * @return
-     */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data, int count) {
-        PrinterBean printerBean = null;
-        if (null != data) {
-            printerBean = new PrinterBean();
-            printerBean.templateInfo = TxtReader.getStringFromAssetsByFullPath(context, assesTemplateFileName);
-            printerBean.printCount = count;
-            printerBean.templateBeanKey = templateRootKeyName;
-            printerBean.templateBean = data;
-        }
-        return printerBean;
     }
 
     private void toSettingView(Context context) {

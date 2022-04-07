@@ -3,6 +3,7 @@
 ![设置](https://image.goukugogo.com/201912241110284025adc9802)
 
 # gradle引入方法
+
 Add it in your root build.gradle at the end of repositories:
 
 	allprojects {
@@ -11,6 +12,7 @@ Add it in your root build.gradle at the end of repositories:
 			maven { url 'https://jitpack.io' }
 		}
 	}
+
 Step 2. Add the dependency
 
 	dependencies {
@@ -18,11 +20,15 @@ Step 2. Add the dependency
 	}
 
 # 使用
+
 ```
 <!-- 打印纯文本消息 -->
 PrinterBean printerBean = new PrinterBean();
         printerBean.templateInfo = "欢迎使用DYH蓝牙打印类库\n测试纯文本消息打印\n此打印方式打印无格式内容";
+        //USB打印机
         UsbPrintManager.getInstance().print(this, printerBean);
+        //蓝牙打印机
+        BluetoothPrintManager.getInstance().print(this, printerBean);
 
 <!-- 打印静态格式化文本消息 -->
 StringBuilder stringBuilder = new StringBuilder();
@@ -42,21 +48,25 @@ StringBuilder stringBuilder = new StringBuilder();
 
         PrinterBean printerBean = new PrinterBean();
         printerBean.templateInfo = stringBuilder.toString();
+        //USB打印机
         UsbPrintManager.getInstance().print(this, printerBean);
-        
+        //蓝牙打印机
+        BluetoothPrintManager.getInstance().print(this, printerBean);
+ 
         
         //组织打印信息
         OrderPrinterBean orderPrinterBean = getOrderPrinterBean();
-        PrinterConfig printerConfig = UsbPrintManager.getInstance().getPrinterConfig(this);
+        PrinterConfig printerConfig = PrinterConfig.getPrinterConfig(this);
         String tempPath = "/assets/printer_template_" + printerConfig.getPagerWidth() + "/order.vm";
-        PrinterBean printerBean = UsbPrintManager.getInstance().getPrinterBean(this,
+        PrinterBean printerBean = PrinterBean.getPrinterBean(this,
                 tempPath,
                 "printBean", orderPrinterBean
                 , 1);
 
 
 <!-- 打印模板消息 -->
-UsbPrintManager.getInstance()
+                UsbPrintManager.getInstance()
+                //BluetoothPrintManager.getInstance()
                 .setAutoOpenSettingActivity(true)//如果需要操作蓝牙设备，自动跳转到设置页面
                 .setNeedShowPrintingDialog(this, true)//是否展示打印中对话框
                 .setOnPrinterNotifyListener(new OnPrinterNotifyListener() {
@@ -100,12 +110,15 @@ UsbPrintManager.getInstance()
                         return orderPrinterBean;
                     }
 ```
+
 <!-- 设置打印机参数 -->
+
 ```
         startActivity(new Intent(this, PrinterManagerActivity.class));
 ```
 
 <!-- 释放资源 -->
+
 ```
     @Override
     protected void onDestroy() {
@@ -116,6 +129,7 @@ UsbPrintManager.getInstance()
 ```
 
 # 模板样例：
+
 ```
 <CB>DW国际饭店</CB>
 #if( $printBean.orderNumber )
@@ -140,11 +154,14 @@ $printBean.userAddress
 #end
                     
 ```
-                    
+
 ### $row.format 模板工具说明：
-第一个参数为追加字符，传“”即可；从第二个参数开始，每4个一组代表一列，一种依次为：1、显示的文本，2、列宽每行中所有列宽相加之和需要等于 32（58小票） 或 48（80小票），3、padding，4、对齐方式 left center right;默认left
+
+第一个参数为追加字符，传“”即可；从第二个参数开始，每4个一组代表一列，一种依次为：1、显示的文本，2、列宽每行中所有列宽相加之和需要等于 32（58小票） 或
+48（80小票），3、padding，4、对齐方式 left center right;默认left
 
 # 标签说明
+
  ```<BR> ：换行符
  <CUT> ：切刀指令(主动切纸,仅限切刀打印机使用才有效果) 
  <PLUGIN> ：钱箱或者外置音响指令
@@ -164,17 +181,9 @@ gravity：对齐方式 left center right;默认left
 padding: 边距
 ```
 
-# UsbPrintManager 其他API方法说明
+# PrinterBean API方法说明
 ```
-    /**
-      * 打印消息
-      *
-      * @param context
-      * @param printerBean 获取方法见demo和 getPrinterBean()方法
-      * @return
-      */
-     public UsbPrintManager print(final Context context, final PrinterBean printerBean)
-    /**
+  /**
      * 生成小票信息数据
      *
      * @param context               上下文
@@ -183,9 +192,11 @@ padding: 边距
      * @param data                  展示的数据
      * @return
      */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data)
-    
-     /**
+    public static PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data) {
+        return getPrinterBean(context, assesTemplateFileName, templateRootKeyName, data, 1);
+    }
+
+    /**
      * 生成小票信息数据
      *
      * @param context               上下文
@@ -195,26 +206,67 @@ padding: 边距
      * @param count                 打印数量
      * @return
      */
-    public PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data, int count)
-    
-    
- /**
+    public static PrinterBean getPrinterBean(Context context, String assesTemplateFileName, String templateRootKeyName, Object data, int count) {
+        PrinterBean printerBean = null;
+        if (null != data) {
+            printerBean = new PrinterBean();
+            printerBean.templateInfo = TxtReader.getStringFromAssetsByFullPath(context, assesTemplateFileName);
+            printerBean.printCount = count;
+            printerBean.templateBeanKey = templateRootKeyName;
+            printerBean.templateBean = data;
+        }
+        return printerBean;
+    }
+```
+
+# PrinterConfig API方法说明
+```
+
+    /**
      * 获取打印机配置信息
      *
      * @param context
      * @return
      */
-    public PrinterConfig getPrinterConfig(Context context)
+    public static PrinterConfig getPrinterConfig(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE);
+        String json = sharedPreferences.getString(PRINTER_CONFIG, null);
+        PrinterConfig printerConfig = new Gson().fromJson(json, PrinterConfig.class);
+        if (printerConfig == null) {
+            printerConfig = new PrinterConfig();
+        }
+        return printerConfig;
+    }
 
- /**
+
+    /**
      * 保存打印机配置信息
      *
      * @param context
      * @param printerConfig
      * @return
      */
-    public UsbPrintManager saveConfigInfo(Context context, PrinterConfig printerConfig) 
+    public static void saveConfigInfo(Context context, PrinterConfig printerConfig) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(FILENAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(PRINTER_CONFIG, new Gson().toJson(printerConfig));
+        editor.apply();
+    }
+```
 
+
+# UsbPrintManager 其他API方法说明
+
+```
+    /**
+      * 打印消息
+      *
+      * @param context
+      * @param printerBean 获取方法见demo和 getPrinterBean()方法
+      * @return
+      */
+     public UsbPrintManager print(final Context context, final PrinterBean printerBean)
+    
 /**
      * 检查是否已经绑定打印机<BR>
      * 本地缓存的已经绑定过的设备名称和地址与当前手机绑定设备列表遍历对比
@@ -241,3 +293,44 @@ padding: 边距
     public UsbPrintManager setOnPrinterNotifyListener(OnPrinterNotifyListener onPrinterNotifyListener) 
 
 ```
+
+# BluetoothPrintManager 其他API方法说明
+
+```
+    /**
+      * 打印消息
+      *
+      * @param context
+      * @param printerBean 获取方法见demo和 getPrinterBean()方法
+      * @return
+      */
+     public BluetoothPrintManager print(final Context context, final PrinterBean printerBean)
+    
+
+/**
+     * 检查是否已经绑定打印机<BR>
+     * 本地缓存的已经绑定过的设备名称和地址与当前手机绑定设备列表遍历对比
+     *
+     * @param mContext
+     * @return true 表示绑定了打印机 否则表示没有绑定打印机
+     */
+    //是否绑定了打印机设备
+    public boolean isBondedPrinter(Context mContext) 
+/**
+     * 是否需要弹框提示正在打印
+     *
+     * @param activity
+     * @param needShowPrintingDialog
+     * @return
+     */
+    public BluetoothPrintManager setNeedShowPrintingDialog(Activity activity, boolean needShowPrintingDialog)
+/**
+     * 设置通知回调监听器
+     *
+     * @param onPrinterNotifyListener 需要监听的监听器对象
+     * @return
+     */
+    public BluetoothPrintManager setOnPrinterNotifyListener(OnPrinterNotifyListener onPrinterNotifyListener) 
+
+```
+
